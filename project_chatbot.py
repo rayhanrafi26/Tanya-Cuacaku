@@ -5,7 +5,8 @@ import requests
 import tempfile
 
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain.agents import AgentExecutor, create_tool_calling_agent
+from langchain.agents import AgentExecutor
+from langchain.agents import create_tool_calling_agent
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.tools import tool
 from langchain_core.messages import HumanMessage, AIMessage
@@ -17,11 +18,10 @@ from langchain_community.vectorstores import FAISS
 st.set_page_config(page_title="Tanya Cuacaku", page_icon="🌤️", layout="wide")
 
 # Konfigurasi API
-# Pastikan GEMINI_API_KEY sudah di-set di Streamlit Secrets
 os.environ["GOOGLE_API_KEY"] = st.secrets.get("GEMINI_API_KEY", "")
 NAMA_FILE_PDF = "BAHAN AJAR AGENDA 1 OBSERVASI FENOMENA DAN PARAMETER METEOROLOGI PENERBANGAN.pdf"
 
-# 1. Fungsi BMKG
+# Fungsi BMKG
 def cek_cuaca_bmkg(kode_wilayah: str) -> str:
     url = f"https://api.bmkg.go.id/publik/prakiraan-cuaca?adm4={kode_wilayah}"
     try:
@@ -31,7 +31,7 @@ def cek_cuaca_bmkg(kode_wilayah: str) -> str:
     except Exception as e:
         return f"Error BMKG: {str(e)}"
 
-# 2. Database RAG
+# RAG PDF
 @st.cache_resource
 def setup_rag_pdf(pdf_path):
     loader = PyPDFLoader(pdf_path)
@@ -41,7 +41,7 @@ def setup_rag_pdf(pdf_path):
 
 database_pengetahuan = setup_rag_pdf(NAMA_FILE_PDF)
 
-# 3. Tools
+# Tools
 @tool
 def alat_cek_cuaca(kode_wilayah: str) -> str:
     """Gunakan untuk prakiraan cuaca wilayah (adm4)."""
@@ -53,7 +53,7 @@ def alat_baca_pdf(pertanyaan: str) -> str:
     hasil = database_pengetahuan.similarity_search(pertanyaan, k=2)
     return "\n\n".join([doc.page_content for doc in hasil])
 
-# 4. Agent
+# Agent
 @st.cache_resource
 def buat_agent():
     llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", temperature=0.1)
@@ -63,12 +63,13 @@ def buat_agent():
         ("human", "{input}"),
         ("placeholder", "{agent_scratchpad}"),
     ])
-    agen = create_tool_calling_agent(llm, [alat_cek_cuaca, alat_baca_pdf], prompt)
-    return AgentExecutor(agent=agen, tools=[alat_cek_cuaca, alat_baca_pdf], verbose=True)
+    tools = [alat_cek_cuaca, alat_baca_pdf]
+    agen = create_tool_calling_agent(llm, tools, prompt)
+    return AgentExecutor(agent=agen, tools=tools, verbose=True)
 
 agen_cuaca = buat_agent()
 
-# 5. UI
+# UI
 st.title("🌤️ Tanya Cuacaku")
 if "messages" not in st.session_state: st.session_state.messages = []
 if "chat_history" not in st.session_state: st.session_state.chat_history = []
