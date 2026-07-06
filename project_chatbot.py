@@ -211,7 +211,7 @@ with st.sidebar:
             st.markdown(f"- {m['content'][:40]}")
 
     st.markdown("---")
-    st.caption("👤 Rafi")
+    st.caption("created by Rayhan Rafi")
 
 # ------------------------------------------
 # STATE
