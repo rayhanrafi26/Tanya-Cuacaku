@@ -168,8 +168,8 @@ with col_title:
     )
 
 st.markdown(
-    '<span class="badge-cuaca">☁️ Cuaca</span> &nbsp; '
-    '<span class="badge-info">📖 Info umum</span>',
+    '<span class="badge-cuaca">☁️ Info Prakiraan Cuaca</span> &nbsp; '
+    '<span class="badge-info">📖 Belajar Meteorologi yuk!</span>',
     unsafe_allow_html=True
 )
 st.divider()
