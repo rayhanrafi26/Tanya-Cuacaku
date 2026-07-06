@@ -2,11 +2,11 @@ import streamlit as st
 import os
 import json
 import requests
-import tempfile
 
+# Perbaikan impor untuk menghindari ImportError pada AgentExecutor
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain.agents import AgentExecutor
 from langchain.agents import create_tool_calling_agent
+from langchain.agents import AgentExecutor
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.tools import tool
 from langchain_core.messages import HumanMessage, AIMessage
@@ -19,9 +19,10 @@ st.set_page_config(page_title="Tanya Cuacaku", page_icon="🌤️", layout="wide
 
 # Konfigurasi API
 os.environ["GOOGLE_API_KEY"] = st.secrets.get("GEMINI_API_KEY", "")
+# Pastikan nama file di bawah sama persis dengan file di repositori GitHub kamu
 NAMA_FILE_PDF = "BAHAN AJAR AGENDA 1 OBSERVASI FENOMENA DAN PARAMETER METEOROLOGI PENERBANGAN.pdf"
 
-# Fungsi BMKG
+# 1. Fungsi BMKG
 def cek_cuaca_bmkg(kode_wilayah: str) -> str:
     url = f"https://api.bmkg.go.id/publik/prakiraan-cuaca?adm4={kode_wilayah}"
     try:
@@ -31,7 +32,7 @@ def cek_cuaca_bmkg(kode_wilayah: str) -> str:
     except Exception as e:
         return f"Error BMKG: {str(e)}"
 
-# RAG PDF
+# 2. Database RAG (Menggunakan cache agar tidak memproses PDF berulang kali)
 @st.cache_resource
 def setup_rag_pdf(pdf_path):
     loader = PyPDFLoader(pdf_path)
@@ -41,24 +42,24 @@ def setup_rag_pdf(pdf_path):
 
 database_pengetahuan = setup_rag_pdf(NAMA_FILE_PDF)
 
-# Tools
+# 3. Tools
 @tool
 def alat_cek_cuaca(kode_wilayah: str) -> str:
-    """Gunakan untuk prakiraan cuaca wilayah (adm4)."""
+    """Gunakan untuk prakiraan cuaca wilayah (adm4). Input harus berupa kode wilayah."""
     return cek_cuaca_bmkg(kode_wilayah)
 
 @tool
 def alat_baca_pdf(pertanyaan: str) -> str:
-    """Gunakan untuk teori meteorologi."""
+    """Gunakan untuk mencari teori meteorologi dari dokumen bahan ajar."""
     hasil = database_pengetahuan.similarity_search(pertanyaan, k=2)
     return "\n\n".join([doc.page_content for doc in hasil])
 
-# Agent
+# 4. Agent
 @st.cache_resource
 def buat_agent():
     llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", temperature=0.1)
     prompt = ChatPromptTemplate.from_messages([
-        ("system", "Kamu adalah asisten meteorologi ahli."),
+        ("system", "Kamu adalah asisten ahli meteorologi. Gunakan alat yang tersedia untuk menjawab pertanyaan."),
         MessagesPlaceholder(variable_name="chat_history"),
         ("human", "{input}"),
         ("placeholder", "{agent_scratchpad}"),
@@ -69,8 +70,9 @@ def buat_agent():
 
 agen_cuaca = buat_agent()
 
-# UI
+# 5. UI Chat
 st.title("🌤️ Tanya Cuacaku")
+
 if "messages" not in st.session_state: st.session_state.messages = []
 if "chat_history" not in st.session_state: st.session_state.chat_history = []
 
