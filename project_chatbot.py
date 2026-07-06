@@ -160,7 +160,7 @@ with col_logo2:
     except Exception:
         st.markdown("`[Logo BMKG]`")
 with col_title:
-    st.markdown("### 🌤️ Cuacaku")
+    st.markdown("### 🌤️ Tanya Cuacaku")
     st.markdown(
         '<p class="subtitle-text">Membantu memberi informasi meteorologi dan '
         'prakiraan cuacamu! (sumber data BMKG)</p>',
