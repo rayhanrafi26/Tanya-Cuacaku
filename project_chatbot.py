@@ -129,7 +129,7 @@ prompt = ChatPromptTemplate.from_messages([
 
 @st.cache_resource(show_spinner="Menyiapkan AI Agent...")
 def buat_agent():
-    llm = ChatGoogleGenerativeAI(model="gemini-3.5-flash", temperature=0.1)
+    llm = ChatGoogleGenerativeAI(model="gemini-3.1-flash-lite", temperature=0.1)
     agen = create_tool_calling_agent(llm, daftar_alat, prompt)
     return AgentExecutor(agent=agen, tools=daftar_alat, verbose=True, return_intermediate_steps=True)
 
