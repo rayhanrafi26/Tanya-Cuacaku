@@ -1,7 +1,6 @@
 streamlit
 langchain
 langchain-core
-langchain-classic
 langchain-community
 langchain-google-genai
 langchain-text-splitters
@@ -9,3 +8,4 @@ faiss-cpu
 pypdf
 sentence-transformers
 requests
+google-generativeai
