@@ -15,8 +15,8 @@ Tujuannya adalah membuat file aplikasi (app.py) dan menyiapkan jalur agar bisa d
 4. Menjalankan Web:
 """
 
-!pip install -q streamlit langchain langchain-google-genai google-generativeai requests faiss-cpu pypdf
-!npm install localtunnel
+pip install -q streamlit langchain langchain-google-genai google-generativeai requests faiss-cpu pypdf
+npm install localtunnel
 
 # Commented out IPython magic to ensure Python compatibility.
 # %%writefile app.py
@@ -25,9 +25,9 @@ Tujuannya adalah membuat file aplikasi (app.py) dan menyiapkan jalur agar bisa d
 # st.title("🌤️ Test Chatbot Meteorologi")
 # st.write("Jika halaman ini muncul, artinya Streamlit di Colab berhasil jalan!")
 
-!curl ipv4.icanhazip.com
+curl ipv4.icanhazip.com
 
-!streamlit run app.py & npx localtunnel --port 8501
+streamlit run app.py & npx localtunnel --port 8501
 
 """Fase 2: Membangun Fungsi Tarik Data BMKG (Blok Tool 1)
 Tujuannya adalah menciptakan alat agar AI bisa "mengetuk pintu" server BMKG dan mengambil data cuaca asli.
@@ -90,7 +90,7 @@ Langkah-langkah Uji Coba Fase 3:
 6. Jalankan Skrip Ini: Copy-paste skrip di bawah ini. Sebelum menekan Play, ubah tulisan "nama_file_kamu.pdf" di bagian paling bawah skrip menjadi nama fail yang baru saja kamu unggah.
 """
 
-!pip install -q langchain-community pypdf
+pip install -q langchain-community pypdf
 
 import os
 from google.colab import userdata
@@ -150,7 +150,7 @@ Nantinya, kita akan memberikan instruksi ketat kepada Gemini:
 
 """
 
-!pip install -q \
+pip install -q \
   langchain==1.0.1 \
   langchain-core==1.0.0 \
   langchain-classic==1.0.0 \
@@ -261,8 +261,8 @@ print("\nJAWABAN FINAL TEST 2:\n", ekstrak_teks_jawaban(jawaban_cuaca['output'])
 
 """Fase 5: Membangun Antarmuka ui ux secara non back end dan telah berhasil untuk melihat ui ux terbarunya"""
 
-!pip install -q streamlit
-!npm install -g localtunnel
+pip install -q streamlit
+npm install -g localtunnel
 
 # Commented out IPython magic to ensure Python compatibility.
 # %%writefile app.py
@@ -431,14 +431,14 @@ print("\nJAWABAN FINAL TEST 2:\n", ekstrak_teks_jawaban(jawaban_cuaca['output'])
 #     })
 #     st.rerun()
 
-!cat app.py | head -5
+cat app.py | head -5
 
-!pkill -f streamlit
-!pkill -f localtunnel
+pkill -f streamlit
+pkill -f localtunnel
 
 # Cell 5 — revisi, kedua proses di-background ke file log terpisah
-!streamlit run app.py --server.enableCORS false --server.enableXsrfProtection false &> /content/streamlit_log.txt &
-!npx localtunnel --port 8501 &> /content/tunnel_log.txt &
+streamlit run app.py --server.enableCORS false --server.enableXsrfProtection false &> /content/streamlit_log.txt &
+npx localtunnel --port 8501 &> /content/tunnel_log.txt &
 
 import time
 time.sleep(8)  # beri waktu proses mulai sebelum lanjut
@@ -446,16 +446,16 @@ print("✅ Kedua proses sudah jalan di background. Cell ini akan langsung selesa
 
 # Cell 6 — baru dijalankan SETELAH Cell 5, karena sekarang bisa berurutan normal
 print("=== URL Tunnel ===")
-!grep "your url" /content/tunnel_log.txt
+grep "your url" /content/tunnel_log.txt
 
 print("\n=== Info IP (untuk verifikasi tunnel password) ===")
-!grep "External URL" /content/streamlit_log.txt
+grep "External URL" /content/streamlit_log.txt
 
 # Cell — bersihkan proses lama dulu
-!pkill -f streamlit
+pkill -f streamlit
 
 # Cell — jalankan Streamlit di background
-!streamlit run app.py --server.enableCORS false --server.enableXsrfProtection false &> /content/streamlit_log.txt &
+streamlit run app.py --server.enableCORS false --server.enableXsrfProtection false &> /content/streamlit_log.txt &
 
 import time
 time.sleep(6)
@@ -475,7 +475,7 @@ Catatan untukmu, Rafi: Karena kita sudah berhasil melakukan Fase 1-3 dengan lanc
 
 """
 
-!pip install -q \
+pip install -q \
   streamlit \
   langchain==1.0.1 \
   langchain-core==1.0.0 \
@@ -763,9 +763,9 @@ os.environ["GEMINI_API_KEY"] = userdata.get('GEMINI_API_KEY')
 # 
 #     st.rerun()
 
-!pkill -f streamlit
+pkill -f streamlit
 
-!streamlit run app.py --server.enableCORS false --server.enableXsrfProtection false &> /content/streamlit_log.txt &
+streamlit run app.py --server.enableCORS false --server.enableXsrfProtection false &> /content/streamlit_log.txt &
 import time
 time.sleep(6)
 
