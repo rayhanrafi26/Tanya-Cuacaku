@@ -1,13 +1,11 @@
 import streamlit as st
-import time
 import os
 import json
 import requests
 import tempfile
 
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain.agents import AgentExecutor
-from langchain.agents import create_tool_calling_agent
+from langchain.agents import AgentExecutor, create_tool_calling_agent
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.tools import tool
 from langchain_core.messages import HumanMessage, AIMessage
@@ -16,22 +14,14 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 
-st.set_page_config(page_title="Cuacaku", page_icon="🌤️", layout="wide")
+st.set_page_config(page_title="Tanya Cuacaku", page_icon="🌤️", layout="wide")
 
 # Konfigurasi API
+# Pastikan GEMINI_API_KEY sudah di-set di Streamlit Secrets
 os.environ["GOOGLE_API_KEY"] = st.secrets.get("GEMINI_API_KEY", "")
 NAMA_FILE_PDF = "BAHAN AJAR AGENDA 1 OBSERVASI FENOMENA DAN PARAMETER METEOROLOGI PENERBANGAN.pdf"
 
-# CSS
-st.markdown("""
-<style>
-    .badge-cuaca { background-color: #E6F1FB; color: #0C447C; padding: 4px 10px; border-radius: 8px; font-size: 12px; }
-    .badge-info { background-color: #EAF3DE; color: #27500A; padding: 4px 10px; border-radius: 8px; font-size: 12px; }
-    .subtitle-text { color: #6B6B6B; font-size: 13px; }
-</style>
-""", unsafe_allow_html=True)
-
-# Fungsi BMKG
+# 1. Fungsi BMKG
 def cek_cuaca_bmkg(kode_wilayah: str) -> str:
     url = f"https://api.bmkg.go.id/publik/prakiraan-cuaca?adm4={kode_wilayah}"
     try:
@@ -41,7 +31,7 @@ def cek_cuaca_bmkg(kode_wilayah: str) -> str:
     except Exception as e:
         return f"Error BMKG: {str(e)}"
 
-# RAG PDF
+# 2. Database RAG
 @st.cache_resource
 def setup_rag_pdf(pdf_path):
     loader = PyPDFLoader(pdf_path)
@@ -51,7 +41,7 @@ def setup_rag_pdf(pdf_path):
 
 database_pengetahuan = setup_rag_pdf(NAMA_FILE_PDF)
 
-# Tools
+# 3. Tools
 @tool
 def alat_cek_cuaca(kode_wilayah: str) -> str:
     """Gunakan untuk prakiraan cuaca wilayah (adm4)."""
@@ -63,7 +53,7 @@ def alat_baca_pdf(pertanyaan: str) -> str:
     hasil = database_pengetahuan.similarity_search(pertanyaan, k=2)
     return "\n\n".join([doc.page_content for doc in hasil])
 
-# Agent
+# 4. Agent
 @st.cache_resource
 def buat_agent():
     llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", temperature=0.1)
@@ -78,11 +68,11 @@ def buat_agent():
 
 agen_cuaca = buat_agent()
 
-# UI Chat
+# 5. UI
+st.title("🌤️ Tanya Cuacaku")
 if "messages" not in st.session_state: st.session_state.messages = []
 if "chat_history" not in st.session_state: st.session_state.chat_history = []
 
-st.title("🌤️ Cuacaku")
 for msg in st.session_state.messages:
     with st.chat_message(msg["role"]): st.markdown(msg["content"])
 
